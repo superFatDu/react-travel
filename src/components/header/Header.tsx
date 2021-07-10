@@ -3,8 +3,13 @@ import styles from './Header.module.css'
 import { Button, Dropdown, Input, Layout, Menu, Typography } from 'antd'
 import { GlobalOutlined } from '@ant-design/icons'
 import logo from '../../assets/logo.svg'
+import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router-dom'
 
 export const Header: React.FC = () => {
+  const history = useHistory()
+  const location = useLocation()
+  const params = useParams()
+  const match = useRouteMatch()
   return (
     <div className={styles['app-header']}>
       {/* top-header */}
@@ -21,14 +26,16 @@ export const Header: React.FC = () => {
           icon={<GlobalOutlined />}
         >语言</Dropdown.Button>
         <Button.Group className={styles['button-group']}>
-          <Button>注册</Button>
-          <Button>登录</Button>
+          <Button onClick={() => history.push('/login')}>注册</Button>
+          <Button onClick={() => history.push('/register')}>登录</Button>
         </Button.Group>
       </div>
       {/* search-header */}
       <Layout.Header className={styles['main-header']}>
-        <img src={logo} alt="" className={styles['App-logo']} />
-        <Typography.Title level={3} className={styles.title}>木与土</Typography.Title>
+        <span onClick={() => history.push('/')}>
+          <img src={logo} alt="" className={styles['App-logo']} />
+          <Typography.Title level={3} className={styles.title}>木与土</Typography.Title>
+        </span>
         <Input.Search placeholder={"欢迎来到我的世界"} className={styles['search-input']} />
       </Layout.Header>
       <Menu mode={"horizontal"} className={styles['main-menu']}>
