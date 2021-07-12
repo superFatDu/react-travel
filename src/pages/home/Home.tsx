@@ -1,7 +1,13 @@
 import React from "react";
-import { Col, Row, Typography } from 'antd';
+import { withTranslation, WithTranslation } from 'react-i18next'
+import { Col, Row, Typography, Spin } from 'antd';
 import { Header, Footer, Carousel, SideMenu, ProductCollection, BusinessPartners } from '../../components'
-import { productList1, productList2, productList3 } from './mockups'
+import { productList2, productList3 } from './mockups'
+import axios from 'axios'
+import { connect } from 'react-redux'
+import { Dispatch } from "redux";
+import { RootState } from "../../redux/store";
+import { fetchRecommendProductsStartActionCreator, fetchRecommendProductsSuccessActionCreator } from "../../redux/recommendProducts/recommendProductsActions";
 import styles from './Home.module.css'
 import s1 from '../../assets/images/sider_2019_12-09.png'
 import s2 from '../../assets/images/sider_2019_02-04.png'
@@ -12,8 +18,51 @@ import bp3 from '../../assets/images/icon-720944_640.png'
 import bp4 from '../../assets/images/microsoft-80658_640.png'
 const companies = [{ src: bp1 }, { src: bp2 }, { src: bp3 }, { src: bp4 }]
 
-export class Home extends React.Component {
+const mapStateToProps = (state: RootState) => {
+  return {
+    loading: state.recommendProducts.loading,
+    productList1: state.recommendProducts.productList1
+  }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    fetchStart: () => dispatch(fetchRecommendProductsStartActionCreator()),
+    fetchSuccess: (data: any) => dispatch(fetchRecommendProductsSuccessActionCreator(data))
+  }
+}
+class HomeComponent extends React.Component<WithTranslation & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>> {
+
+  componentDidMount() {
+    this.props.fetchStart()
+    try {
+      axios.get('/mockups.json').then(res => {
+        const { data } = res
+        // this.setState({
+        //   loading: false,
+        //   productList1: data.productList1
+        // })
+        this.props.fetchSuccess(data.productList1)
+      })
+    } catch (e) { }
+  }
+
   render() {
+    const { t, productList1, loading } = this.props
+    if (loading) {
+      return (
+        <Spin
+          size="large"
+          style={{
+            marginTop: 200,
+            marginBottom: 200,
+            marginLeft: "auto",
+            marginRight: "auto",
+            width: "100%"
+          }}
+        />
+      )
+    }
     return (
       <>
         <Header />
@@ -27,22 +76,22 @@ export class Home extends React.Component {
             </Col>
           </Row>
           <ProductCollection
-            title={<Typography.Title level={3} type="warning">爆火推荐</Typography.Title>}
+            title={<Typography.Title level={3} type="warning">{t('home_page.hot_recommended')}</Typography.Title>}
             sideImage={s1}
             products={productList1}
           ></ProductCollection>
           <ProductCollection
-            title={<Typography.Title level={3} type="warning">新品上市</Typography.Title>}
+            title={<Typography.Title level={3} type="warning">{t('home_page.new_arrival')}</Typography.Title>}
             sideImage={s2}
             products={productList2}
           ></ProductCollection>
           <ProductCollection
-            title={<Typography.Title level={3} type="warning">国内游推荐</Typography.Title>}
+            title={<Typography.Title level={3} type="warning">{t('home_page.domestic_travel')}</Typography.Title>}
             sideImage={s3}
             products={productList3}
           ></ProductCollection>
           <BusinessPartners
-            title={<Typography.Title level={3}>合作共赢</Typography.Title>}
+            title={<Typography.Title level={3}>{t('home_page.joint_venture')}</Typography.Title>}
             companies={companies}
           />
           <Footer />
@@ -51,3 +100,5 @@ export class Home extends React.Component {
     )
   }
 }
+
+export const Home = connect(mapStateToProps, mapDispatchToProps)(withTranslation()(HomeComponent))
