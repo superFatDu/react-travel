@@ -3,11 +3,9 @@ import { withTranslation, WithTranslation } from 'react-i18next'
 import { Col, Row, Typography, Spin } from 'antd';
 import { Header, Footer, Carousel, SideMenu, ProductCollection, BusinessPartners } from '../../components'
 import { productList2, productList3 } from './mockups'
-import axios from 'axios'
 import { connect } from 'react-redux'
-import { Dispatch } from "redux";
 import { RootState } from "../../redux/store";
-import { fetchRecommendProductsStartActionCreator, fetchRecommendProductsSuccessActionCreator } from "../../redux/recommendProducts/recommendProductsActions";
+import { giveMeDataActionCreator } from "../../redux/recommendProducts/recommendProductsActions";
 import styles from './Home.module.css'
 import s1 from '../../assets/images/sider_2019_12-09.png'
 import s2 from '../../assets/images/sider_2019_02-04.png'
@@ -25,26 +23,15 @@ const mapStateToProps = (state: RootState) => {
   }
 }
 
-const mapDispatchToProps = (dispatch: Dispatch) => {
+const mapDispatchToProps = (dispatch: any) => {
   return {
-    fetchStart: () => dispatch(fetchRecommendProductsStartActionCreator()),
-    fetchSuccess: (data: any) => dispatch(fetchRecommendProductsSuccessActionCreator(data))
+    fetchData: () => dispatch(giveMeDataActionCreator())
   }
 }
 class HomeComponent extends React.Component<WithTranslation & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>> {
 
   componentDidMount() {
-    this.props.fetchStart()
-    try {
-      axios.get('/mockups.json').then(res => {
-        const { data } = res
-        // this.setState({
-        //   loading: false,
-        //   productList1: data.productList1
-        // })
-        this.props.fetchSuccess(data.productList1)
-      })
-    } catch (e) { }
+    this.props.fetchData()
   }
 
   render() {
